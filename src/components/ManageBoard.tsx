@@ -19,13 +19,54 @@ type Registry = {
   due_label: string | null;
 };
 
+const DAYS = [
+  { value: "any", label: "Any day" },
+  { value: "sun", label: "Sunday" },
+  { value: "mon", label: "Monday" },
+  { value: "tue", label: "Tuesday" },
+  { value: "wed", label: "Wednesday" },
+  { value: "thu", label: "Thursday" },
+  { value: "fri", label: "Friday" },
+  { value: "sat", label: "Saturday" },
+] as const;
+
+const TIMEFRAMES = [
+  { value: "any", label: "Any time" },
+  { value: "morning", label: "Morning" },
+  { value: "afternoon", label: "Afternoon" },
+  { value: "evening", label: "Evening" },
+] as const;
+
+const RECURRENCES = [
+  { value: "once", label: "One-time" },
+  { value: "daily", label: "Daily" },
+  { value: "weekly", label: "Weekly" },
+  { value: "biweekly", label: "Every 2 weeks" },
+  { value: "monthly", label: "Monthly" },
+] as const;
+
+function buildDayLabel(day: string, timeframe: string, recurrence: string) {
+  const parts: string[] = [];
+  if (day !== "any") parts.push(day.toUpperCase());
+  if (timeframe !== "any") {
+    parts.push(TIMEFRAMES.find((t) => t.value === timeframe)!.label.toUpperCase());
+  }
+  let base = parts.length ? parts.join(", ") : "ANYTIME";
+  if (recurrence !== "once") {
+    base += ` — ${RECURRENCES.find((r) => r.value === recurrence)!.label.toUpperCase()}`;
+  }
+  return base;
+}
+
 export function ManageBoard({ slug, token }: { slug: string; token: string }) {
   const [registry, setRegistry] = useState<Registry | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [state, setState] = useState<"loading" | "denied" | "ready">(token ? "loading" : "denied");
 
   const [category, setCategory] = useState<"meal" | "item" | "care">("item");
-  const [dayLabel, setDayLabel] = useState("ANYTIME");
+  const [day, setDay] = useState("any");
+  const [timeframe, setTimeframe] = useState("any");
+  const [recurrence, setRecurrence] = useState("once");
   const [description, setDescription] = useState("");
   const [adding, setAdding] = useState(false);
 
@@ -59,6 +100,7 @@ export function ManageBoard({ slug, token }: { slug: string; token: string }) {
     e.preventDefault();
     if (!description.trim()) return;
     setAdding(true);
+    const dayLabel = buildDayLabel(day, timeframe, recurrence);
     await runAction({ action: "add", category, dayLabel, description });
     setDescription("");
     setAdding(false);
@@ -129,13 +171,32 @@ export function ManageBoard({ slug, token }: { slug: string; token: string }) {
           <option value="care">Time & care</option>
         </select>
 
-        <label htmlFor="dayLabel">When</label>
-        <input
-          id="dayLabel"
-          value={dayLabel}
-          onChange={(e) => setDayLabel(e.target.value)}
-          placeholder="e.g. TUE, DINNER or ANYTIME"
-        />
+        <label htmlFor="day">Day</label>
+        <select id="day" value={day} onChange={(e) => setDay(e.target.value)}>
+          {DAYS.map((d) => (
+            <option key={d.value} value={d.value}>
+              {d.label}
+            </option>
+          ))}
+        </select>
+
+        <label htmlFor="timeframe">Time of day</label>
+        <select id="timeframe" value={timeframe} onChange={(e) => setTimeframe(e.target.value)}>
+          {TIMEFRAMES.map((t) => (
+            <option key={t.value} value={t.value}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+
+        <label htmlFor="recurrence">Repeats</label>
+        <select id="recurrence" value={recurrence} onChange={(e) => setRecurrence(e.target.value)}>
+          {RECURRENCES.map((r) => (
+            <option key={r.value} value={r.value}>
+              {r.label}
+            </option>
+          ))}
+        </select>
 
         <label htmlFor="description">What&rsquo;s needed</label>
         <input
