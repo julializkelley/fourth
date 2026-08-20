@@ -1,4 +1,0 @@
-cd /Users/juliakelley/Desktop/fourth-app/web
-git add -A
-git commit -m "Fourth landing page, waitlist, and registry"
-gh repo create fourth-app --private --source=. --remote=origin --push
