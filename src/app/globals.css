@@ -1018,6 +1018,87 @@ footer p {
   }
 }
 
+/* ---------- embedded hero support chat ---------- */
+.support-chat {
+  margin-top: 40px;
+  max-width: 640px;
+  background: var(--ink-soft);
+  border: 1px solid var(--highlight);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.support-chat-head {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+}
+.support-chat-head h3 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+.support-chat-head p {
+  font-size: 13px;
+  color: var(--slate);
+}
+
+.support-chat-messages {
+  min-height: 160px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.support-chat-greeting {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 16.5px;
+  line-height: 1.5;
+  color: var(--parchment);
+  text-align: left;
+  max-width: 100%;
+}
+
+.support-chat .chat-ambient-banner {
+  margin: 0 24px 16px;
+}
+.support-chat .chat-input-row {
+  padding: 16px 24px;
+}
+.support-chat .chat-footer-actions {
+  padding: 12px 24px;
+}
+
+.hero-secondary-links {
+  margin-top: 22px;
+  font-size: 13.5px;
+  color: var(--slate);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.hero-secondary-links a {
+  color: var(--slate);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.hero-secondary-links a:hover {
+  color: var(--parchment);
+}
+
+@media (max-width: 600px) {
+  .support-chat-messages {
+    max-height: 300px;
+  }
+}
+
 /* ---------- chat widget ---------- */
 .chat-wrap {
   position: fixed;

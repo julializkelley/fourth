@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { RegistryBoard } from "@/components/RegistryBoard";
 import { WaitlistForm } from "@/components/WaitlistForm";
+import { SupportChat } from "@/components/SupportChat";
 
 export default function Home() {
   return (
@@ -23,14 +24,13 @@ export default function Home() {
             she&rsquo;s doing, and lets friends and family show up with exactly what&rsquo;s
             needed — no guesswork, no account required for them.
           </p>
-          <div className="hero-ctas">
-            <a href="#join" className="btn btn-primary">
-              Join the waitlist
-            </a>
-            <a href="#registry" className="btn btn-secondary">
-              See how the registry works
-            </a>
-          </div>
+          <SupportChat />
+
+          <p className="hero-secondary-links">
+            <a href="#join">Join the waitlist</a>
+            <span aria-hidden="true">·</span>
+            <a href="#registry">See how the registry works</a>
+          </p>
         </div>
       </header>
 
