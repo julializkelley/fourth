@@ -11,7 +11,7 @@ function formatTime(d: Date) {
 function labelFor(d: Date) {
   const hour = d.getHours();
   const isDaytime = hour >= 6 && hour < 22;
-  return isDaytime ? "SOMEONE IS HERE RIGHT NOW" : "SOMEONE IS AWAKE RIGHT NOW";
+  return isDaytime ? "SOMEONE IS GOING THROUGH IT RIGHT NOW" : "SOMEONE IS AWAKE RIGHT NOW";
 }
 
 export function LiveTimestamp() {
