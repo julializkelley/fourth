@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
 import { CrisisButton } from "@/components/CrisisButton";
+import { ChatWidget } from "@/components/ChatWidget";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${fraunces.variable} ${inter.variable} ${plexMono.variable}`}>
       <body>
         {children}
+        <ChatWidget />
         <CrisisButton />
       </body>
     </html>

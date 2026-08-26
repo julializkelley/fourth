@@ -66,3 +66,96 @@ cross join (
 ) as v(category, day_label, description, status, claimed_by_name, sort_order)
 where r.slug = 'maya-demo'
 and not exists (select 1 from registry_slots s where s.registry_id = r.id);
+
+-- Anonymous support chat + peer pairing (no accounts -- identified only by
+-- a random session id the browser keeps in localStorage).
+
+create table if not exists chat_sessions (
+  id uuid primary key default gen_random_uuid(),
+  status text not null default 'ai_chat' check (status in ('ai_chat', 'waiting_to_pair', 'paired', 'ended')),
+  pair_chat_id uuid,
+  last_ping_at timestamptz not null default now(),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists pair_chats (
+  id uuid primary key default gen_random_uuid(),
+  session_a_id uuid not null references chat_sessions(id) on delete cascade,
+  session_b_id uuid not null references chat_sessions(id) on delete cascade,
+  status text not null default 'active' check (status in ('active', 'ended')),
+  ended_reason text,
+  created_at timestamptz not null default now(),
+  ended_at timestamptz
+);
+
+create table if not exists pair_messages (
+  id uuid primary key default gen_random_uuid(),
+  pair_chat_id uuid not null references pair_chats(id) on delete cascade,
+  sender_session_id uuid not null references chat_sessions(id),
+  content text not null,
+  flagged boolean not null default false,
+  flag_reason text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists pair_messages_pair_chat_id_idx on pair_messages(pair_chat_id);
+create index if not exists chat_sessions_status_idx on chat_sessions(status, last_ping_at);
+
+alter table chat_sessions enable row level security;
+alter table pair_chats enable row level security;
+alter table pair_messages enable row level security;
+
+-- Atomically claims a waiting partner session (if any) and pairs it with
+-- the caller. FOR UPDATE SKIP LOCKED prevents two concurrent requests from
+-- claiming the same waiting session.
+create or replace function try_pair_session(p_session_id uuid)
+returns uuid
+language plpgsql
+security definer
+as $$
+declare
+  v_partner_id uuid;
+  v_pair_id uuid;
+  v_current_status text;
+  v_current_pair uuid;
+begin
+  insert into chat_sessions (id, status, last_ping_at)
+  values (p_session_id, 'waiting_to_pair', now())
+  on conflict (id) do update
+    set status = 'waiting_to_pair', last_ping_at = now()
+    where chat_sessions.status not in ('paired');
+
+  -- Someone else's call may have already paired us with them between the
+  -- upsert above and now -- if so, return that pairing instead of racing
+  -- to create a second one.
+  select status, pair_chat_id into v_current_status, v_current_pair
+  from chat_sessions where id = p_session_id;
+
+  if v_current_status = 'paired' then
+    return v_current_pair;
+  end if;
+
+  select id into v_partner_id
+  from chat_sessions
+  where id != p_session_id
+    and status = 'waiting_to_pair'
+    and last_ping_at > now() - interval '90 seconds'
+  order by created_at asc
+  for update skip locked
+  limit 1;
+
+  if v_partner_id is null then
+    return null;
+  end if;
+
+  insert into pair_chats (session_a_id, session_b_id)
+  values (p_session_id, v_partner_id)
+  returning id into v_pair_id;
+
+  update chat_sessions
+  set status = 'paired', pair_chat_id = v_pair_id
+  where id in (p_session_id, v_partner_id);
+
+  return v_pair_id;
+end;
+$$;
