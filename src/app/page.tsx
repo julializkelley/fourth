@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { RegistryBoard } from "@/components/RegistryBoard";
 import { WaitlistForm } from "@/components/WaitlistForm";
 import { SupportChat } from "@/components/SupportChat";
+import { LiveTimestamp } from "@/components/LiveTimestamp";
 
 export default function Home() {
   return (
@@ -12,10 +13,7 @@ export default function Home() {
 
       <header className="hero">
         <div className="wrap">
-          <div className="timestamp">
-            <span className="pulse-dot" />
-            2:14 AM — SOMEONE IS AWAKE RIGHT NOW
-          </div>
+          <LiveTimestamp />
           <h1>
             You&rsquo;re not supposed to figure out <em>the fourth trimester</em> alone.
           </h1>
