@@ -323,6 +323,21 @@ h2 {
   letter-spacing: 0.03em;
 }
 
+.registry-notes {
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(232, 196, 160, 0.06);
+}
+.registry-notes p {
+  font-size: 13.5px;
+  color: var(--parchment);
+  line-height: 1.6;
+}
+.registry-notes strong {
+  color: var(--highlight);
+  font-weight: 600;
+}
+
 .registry-tabs {
   display: flex;
   gap: 4px;
@@ -382,6 +397,16 @@ h2 {
   font-size: 11px;
   color: var(--slate);
   margin-top: 8px;
+}
+.slot-external-link {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--clay-bright);
+  margin-top: 8px;
+}
+.slot-external-link:hover {
+  text-decoration: underline;
 }
 .slot.taken .status {
   color: var(--highlight);
@@ -604,6 +629,34 @@ footer p {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+}
+
+.manage-subheading {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 19px;
+  margin-top: 48px;
+  margin-bottom: 4px;
+}
+
+.suggested-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.suggested-chip {
+  background: var(--ink-soft);
+  border: 1px solid var(--line);
+  color: var(--parchment);
+  border-radius: 100px;
+  padding: 8px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.suggested-chip:hover {
+  border-color: var(--clay);
 }
 
 /* ---------- claim modal ---------- */
@@ -1000,6 +1053,17 @@ footer p {
   cursor: not-allowed;
 }
 
+.chat-persistent-note {
+  padding: 0 20px 14px;
+  font-size: 11.5px;
+  color: var(--slate);
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+.support-chat .chat-persistent-note {
+  padding: 0 24px 16px;
+}
+
 .chat-footer-actions {
   padding: 10px 14px;
   border-top: 1px solid var(--line);
@@ -1271,5 +1335,72 @@ footer p {
   .chat-wrap {
     left: 14px;
     bottom: 14px;
+  }
+}
+
+/* ---------- section CTA + large button ---------- */
+.section-cta {
+  margin-top: 40px;
+  text-align: center;
+}
+.btn-large {
+  font-size: 17px;
+  padding: 18px 40px;
+}
+
+/* ---------- things she might need ---------- */
+.needs-library {
+  margin-top: 72px;
+  padding-top: 56px;
+  border-top: 1px solid var(--line);
+}
+.needs-library h3 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 26px;
+  margin-bottom: 10px;
+}
+.needs-grid {
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.needs-category {
+  background: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 22px 24px;
+}
+.needs-category-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--clay-bright);
+  margin-bottom: 14px;
+}
+.needs-category ul {
+  list-style: none;
+}
+.needs-category li {
+  font-size: 14.5px;
+  color: var(--parchment);
+  padding: 7px 0;
+  border-top: 1px solid var(--line);
+}
+.needs-category li:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+@media (max-width: 780px) {
+  .needs-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 520px) {
+  .needs-grid {
+    grid-template-columns: 1fr;
   }
 }

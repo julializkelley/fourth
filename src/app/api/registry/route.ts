@@ -11,6 +11,11 @@ export async function POST(req: Request) {
 
   const momName = body.momName.trim();
   const dueLabel = typeof body.dueLabel === "string" ? body.dueLabel.trim() : null;
+  const allergies = typeof body.allergies === "string" && body.allergies.trim() ? body.allergies.trim() : null;
+  const mealPreferences =
+    typeof body.mealPreferences === "string" && body.mealPreferences.trim() ? body.mealPreferences.trim() : null;
+  const dropoffNotes =
+    typeof body.dropoffNotes === "string" && body.dropoffNotes.trim() ? body.dropoffNotes.trim() : null;
 
   const db = supabaseAdmin();
   const slug = slugify(momName);
@@ -18,7 +23,15 @@ export async function POST(req: Request) {
 
   const { data: registry, error } = await db
     .from("registries")
-    .insert({ slug, edit_token: editToken, mom_name: momName, due_label: dueLabel })
+    .insert({
+      slug,
+      edit_token: editToken,
+      mom_name: momName,
+      due_label: dueLabel,
+      allergies,
+      meal_preferences: mealPreferences,
+      dropoff_notes: dropoffNotes,
+    })
     .select()
     .single();
 

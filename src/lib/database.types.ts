@@ -29,6 +29,9 @@ export type Database = {
           mom_name: string;
           due_label: string | null;
           current_week: number;
+          allergies: string | null;
+          meal_preferences: string | null;
+          dropoff_notes: string | null;
           created_at: string;
         };
         Insert: {
@@ -38,6 +41,9 @@ export type Database = {
           mom_name: string;
           due_label?: string | null;
           current_week?: number;
+          allergies?: string | null;
+          meal_preferences?: string | null;
+          dropoff_notes?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["registries"]["Insert"]>;
@@ -47,30 +53,50 @@ export type Database = {
         Row: {
           id: string;
           registry_id: string;
-          category: "meal" | "item" | "care";
+          category: "meal" | "item" | "care" | "gift_card";
           day_label: string;
           description: string;
-          status: "open" | "taken";
+          status: "open" | "pending" | "taken";
           claimed_by_name: string | null;
           claimed_by_contact: string | null;
           claimed_at: string | null;
+          external_url: string | null;
           sort_order: number;
           created_at: string;
         };
         Insert: {
           id?: string;
           registry_id: string;
-          category: "meal" | "item" | "care";
+          category: "meal" | "item" | "care" | "gift_card";
           day_label: string;
           description: string;
-          status?: "open" | "taken";
+          status?: "open" | "pending" | "taken";
           claimed_by_name?: string | null;
           claimed_by_contact?: string | null;
           claimed_at?: string | null;
+          external_url?: string | null;
           sort_order?: number;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["registry_slots"]["Insert"]>;
+        Relationships: [];
+      };
+      registry_approved_contacts: {
+        Row: {
+          id: string;
+          registry_id: string;
+          name: string;
+          contact: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          registry_id: string;
+          name: string;
+          contact?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["registry_approved_contacts"]["Insert"]>;
         Relationships: [];
       };
       chat_sessions: {

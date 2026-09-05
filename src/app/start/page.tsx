@@ -7,6 +7,9 @@ import { SiteFooter } from "@/components/SiteFooter";
 export default function StartPage() {
   const [momName, setMomName] = useState("");
   const [dueLabel, setDueLabel] = useState("");
+  const [allergies, setAllergies] = useState("");
+  const [mealPreferences, setMealPreferences] = useState("");
+  const [dropoffNotes, setDropoffNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ slug: string; editToken: string } | null>(null);
@@ -20,7 +23,7 @@ export default function StartPage() {
       const res = await fetch("/api/registry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ momName, dueLabel }),
+        body: JSON.stringify({ momName, dueLabel, allergies, mealPreferences, dropoffNotes }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -65,6 +68,27 @@ export default function StartPage() {
                 placeholder="e.g. Week 2, or March 2026"
                 value={dueLabel}
                 onChange={(e) => setDueLabel(e.target.value)}
+              />
+              <label htmlFor="allergies">Any allergies helpers should know about (optional)</label>
+              <input
+                id="allergies"
+                placeholder="e.g. Peanuts, shellfish"
+                value={allergies}
+                onChange={(e) => setAllergies(e.target.value)}
+              />
+              <label htmlFor="mealPreferences">Meal preferences (optional)</label>
+              <input
+                id="mealPreferences"
+                placeholder="e.g. Vegetarian, no spicy food"
+                value={mealPreferences}
+                onChange={(e) => setMealPreferences(e.target.value)}
+              />
+              <label htmlFor="dropoffNotes">Ideal drop-off times or instructions (optional)</label>
+              <input
+                id="dropoffNotes"
+                placeholder="e.g. Weekdays after 4pm, leave on the porch"
+                value={dropoffNotes}
+                onChange={(e) => setDropoffNotes(e.target.value)}
               />
               {error && <div className="error-msg">{error}</div>}
               <button type="submit" className="btn btn-primary form-submit" disabled={submitting}>

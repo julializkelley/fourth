@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 
 type Slot = {
   id: string;
-  category: "meal" | "item" | "care";
+  category: "meal" | "item" | "care" | "gift_card";
   day_label: string;
   description: string;
-  status: "open" | "taken";
+  status: "open" | "pending" | "taken";
   claimed_by_name: string | null;
+  external_url: string | null;
   sort_order: number;
 };
 
@@ -18,6 +19,9 @@ type Registry = {
   mom_name: string;
   due_label: string | null;
   current_week: number;
+  allergies: string | null;
+  meal_preferences: string | null;
+  dropoff_notes: string | null;
 };
 
 const TABS = [
@@ -28,6 +32,12 @@ const TABS = [
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
+
+function matchesTab(slot: Slot, tab: TabKey) {
+  if (tab === "all") return true;
+  if (tab === "item") return slot.category === "item" || slot.category === "gift_card";
+  return slot.category === tab;
+}
 
 export function RegistryBoard({ slug }: { slug: string }) {
   const [registry, setRegistry] = useState<Registry | null>(null);
@@ -60,11 +70,16 @@ export function RegistryBoard({ slug }: { slug: string }) {
     };
   }, [slug]);
 
-  const visibleSlots = tab === "all" ? slots : slots.filter((s) => s.category === tab);
+  const visibleSlots = slots.filter((s) => matchesTab(s, tab));
+  const hasNotes = registry?.allergies || registry?.meal_preferences || registry?.dropoff_notes;
 
-  function handleClaimed(slotId: string, name: string) {
+  function handleClaimed(slotId: string, name: string, pending: boolean) {
     setSlots((prev) =>
-      prev.map((s) => (s.id === slotId ? { ...s, status: "taken", claimed_by_name: name } : s))
+      prev.map((s) =>
+        s.id === slotId
+          ? { ...s, status: pending ? "pending" : "taken", claimed_by_name: pending ? null : name }
+          : s
+      )
     );
     setActiveSlot(null);
   }
@@ -97,6 +112,27 @@ export function RegistryBoard({ slug }: { slug: string }) {
         </div>
         <div className="no-account-badge">No sign-up required</div>
       </div>
+
+      {hasNotes && (
+        <div className="registry-notes">
+          {registry.allergies && (
+            <p>
+              <strong>Allergies:</strong> {registry.allergies}
+            </p>
+          )}
+          {registry.meal_preferences && (
+            <p>
+              <strong>Meal preferences:</strong> {registry.meal_preferences}
+            </p>
+          )}
+          {registry.dropoff_notes && (
+            <p>
+              <strong>Drop-off notes:</strong> {registry.dropoff_notes}
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="registry-tabs">
         {TABS.map((t) => (
           <button
@@ -117,15 +153,30 @@ export function RegistryBoard({ slug }: { slug: string }) {
             <button
               key={slot.id}
               type="button"
-              className={`slot ${slot.status === "taken" ? "taken" : ""}`}
-              disabled={slot.status === "taken"}
+              className={`slot ${slot.status !== "open" ? "taken" : ""}`}
+              disabled={slot.status !== "open"}
               onClick={() => setActiveSlot(slot)}
             >
               <div className="day">{slot.day_label}</div>
               <div className="item">{slot.description}</div>
               <div className="status">
-                {slot.status === "taken" ? `Claimed by ${slot.claimed_by_name}` : "Open — claim it"}
+                {slot.status === "taken"
+                  ? `Claimed by ${slot.claimed_by_name}`
+                  : slot.status === "pending"
+                    ? "Pending approval"
+                    : "Open — claim it"}
               </div>
+              {slot.category === "gift_card" && slot.external_url && slot.status === "open" && (
+                <a
+                  href={slot.external_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="slot-external-link"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Buy a gift card ↗
+                </a>
+              )}
             </button>
           ))}
         </div>
@@ -152,7 +203,7 @@ function ClaimModal({
   slug: string;
   slot: Slot;
   onClose: () => void;
-  onClaimed: (slotId: string, name: string) => void;
+  onClaimed: (slotId: string, name: string, pending: boolean) => void;
 }) {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
@@ -175,7 +226,7 @@ function ClaimModal({
         setError(data.error ?? "Could not claim this slot.");
         return;
       }
-      onClaimed(slot.id, name.trim());
+      onClaimed(slot.id, name.trim(), !!data.pending);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -188,6 +239,13 @@ function ClaimModal({
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <h4>{slot.description}</h4>
         <p className="modal-sub">{slot.day_label}</p>
+        {slot.category === "gift_card" && slot.external_url && (
+          <p className="modal-sub">
+            <a href={slot.external_url} target="_blank" rel="noreferrer">
+              Buy the gift card here ↗
+            </a>
+          </p>
+        )}
         <form onSubmit={submit}>
           <label htmlFor="claim-name">Your name</label>
           <input

@@ -313,19 +313,25 @@ export function SupportChat() {
       </div>
 
       {mode === "ai" && (
-        <div className="chat-input-row">
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type here… no account needed"
-            disabled={sending}
-          />
-          <button className="chat-send" onClick={sendAiMessage} disabled={sending || !input.trim()}>
-            Send
-          </button>
-        </div>
+        <>
+          <div className="chat-input-row">
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type here… no account needed"
+              disabled={sending}
+            />
+            <button className="chat-send" onClick={sendAiMessage} disabled={sending || !input.trim()}>
+              Send
+            </button>
+          </div>
+          <p className="chat-persistent-note">
+            In crisis? Call or text 988, or call 1-833-852-6262 (National Maternal Mental Health
+            Hotline) — both free, 24/7.
+          </p>
+        </>
       )}
 
       {mode === "pair_waiting" && (

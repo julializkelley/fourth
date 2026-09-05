@@ -27,16 +27,30 @@ export async function POST(
   const claimedByName = body.name.trim();
   const claimedByContact = typeof body.contact === "string" ? body.contact.trim() : null;
 
+  const { data: approvedMatches } = await db
+    .from("registry_approved_contacts")
+    .select("name, contact")
+    .eq("registry_id", registry.id);
+
+  const isPreApproved = (approvedMatches ?? []).some((c) => {
+    const nameMatch = c.name.trim().toLowerCase() === claimedByName.toLowerCase();
+    const contactMatch =
+      !!c.contact && !!claimedByContact && c.contact.trim().toLowerCase() === claimedByContact.toLowerCase();
+    return nameMatch || contactMatch;
+  });
+
+  const newStatus = isPreApproved ? "taken" : "pending";
+
   const { data: updated, error } = await db
     .from("registry_slots")
     .update({
-      status: "taken",
+      status: newStatus,
       claimed_by_name: claimedByName,
       claimed_by_contact: claimedByContact,
       claimed_at: new Date().toISOString(),
     })
     .eq("id", body.slotId)
-    .eq("registry_id", (registry as { id: string }).id)
+    .eq("registry_id", registry.id)
     .eq("status", "open")
     .select()
     .single();
@@ -48,5 +62,5 @@ export async function POST(
     );
   }
 
-  return NextResponse.json({ ok: true, slot: updated });
+  return NextResponse.json({ ok: true, slot: updated, pending: newStatus === "pending" });
 }

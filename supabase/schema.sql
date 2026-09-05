@@ -159,3 +159,35 @@ begin
   return v_pair_id;
 end;
 $$;
+
+-- Registry v2: allergies/preferences, gift-card items, and claim approval.
+
+alter table registries add column if not exists allergies text;
+alter table registries add column if not exists meal_preferences text;
+alter table registries add column if not exists dropoff_notes text;
+
+alter table registry_slots drop constraint if exists registry_slots_category_check;
+alter table registry_slots add constraint registry_slots_category_check
+  check (category in ('meal', 'item', 'care', 'gift_card'));
+
+alter table registry_slots drop constraint if exists registry_slots_status_check;
+alter table registry_slots add constraint registry_slots_status_check
+  check (status in ('open', 'pending', 'taken'));
+
+alter table registry_slots add column if not exists external_url text;
+
+-- People a mom/partner has pre-approved -- their claims skip the pending
+-- queue and confirm immediately. Matched by name OR contact, either exact
+-- (case-insensitive).
+create table if not exists registry_approved_contacts (
+  id uuid primary key default gen_random_uuid(),
+  registry_id uuid not null references registries(id) on delete cascade,
+  name text not null,
+  contact text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists registry_approved_contacts_registry_id_idx
+  on registry_approved_contacts(registry_id);
+
+alter table registry_approved_contacts enable row level security;

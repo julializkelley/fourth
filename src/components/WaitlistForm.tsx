@@ -64,6 +64,7 @@ export function WaitlistForm() {
         <option>Partner</option>
         <option>Family member or friend</option>
         <option>Doula / provider</option>
+        <option>Just want to help</option>
       </select>
 
       <label htmlFor="due">Due date or baby&rsquo;s birthday (optional)</label>
