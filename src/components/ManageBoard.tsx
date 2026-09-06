@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ShareCard } from "@/components/ShareCard";
 
 type Slot = {
   id: string;
@@ -218,11 +219,20 @@ export function ManageBoard({ slug, token }: { slug: string; token: string }) {
   const pendingSlots = slots.filter((s) => s.status === "pending");
   const otherSlots = slots.filter((s) => s.status !== "pending");
 
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+
   return (
     <>
       <p className="section-lede">
         Managing <strong>{registry?.mom_name}&rsquo;s</strong> registry.
       </p>
+
+      {registry && (
+        <details className="share-details">
+          <summary>Share this registry on social or by text</summary>
+          <ShareCard momName={registry.mom_name} registryUrl={`${origin}/r/${registry.slug}`} />
+        </details>
+      )}
 
       {pendingSlots.length > 0 && (
         <>

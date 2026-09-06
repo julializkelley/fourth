@@ -1452,3 +1452,145 @@ footer p {
   color: var(--highlight);
   margin-top: 6px;
 }
+
+/* ---------- library page ---------- */
+.psychosis-callout {
+  margin-top: 40px;
+  background: rgba(229, 72, 77, 0.08);
+  border: 1px solid #e5484d;
+  border-radius: 12px;
+  padding: 28px 32px;
+}
+.psychosis-callout-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e5484d;
+  margin-bottom: 10px;
+}
+.psychosis-callout h2 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 24px;
+  margin-bottom: 14px;
+  max-width: 100%;
+}
+.psychosis-callout p {
+  font-size: 15px;
+  color: var(--parchment);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.psychosis-callout p:last-child {
+  margin-bottom: 0;
+}
+.psychosis-callout strong {
+  color: var(--highlight);
+}
+
+.library-stages {
+  margin-top: 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+.library-stage {
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+}
+.library-stage:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+.library-stage h2 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 26px;
+  margin-bottom: 24px;
+}
+.library-stage-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+.library-col-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--clay-bright);
+  margin-bottom: 14px;
+}
+.library-col-label-reach {
+  color: var(--highlight);
+}
+.library-stage-grid ul {
+  list-style: none;
+}
+.library-stage-grid li {
+  font-size: 14px;
+  color: var(--parchment);
+  line-height: 1.55;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.library-stage-grid li:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+@media (max-width: 780px) {
+  .library-stage-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+/* ---------- share card ---------- */
+.share-card-block {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.share-card-preview-wrap {
+  background: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  display: inline-block;
+}
+.share-card-canvas {
+  width: 220px;
+  height: auto;
+  display: block;
+  border-radius: 6px;
+}
+.share-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.share-details {
+  margin-top: 24px;
+  margin-bottom: 32px;
+  background: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+.share-details summary {
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--clay-bright);
+  letter-spacing: 0.02em;
+}
+.share-details[open] summary {
+  margin-bottom: 8px;
+}

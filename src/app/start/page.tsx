@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ShareCard } from "@/components/ShareCard";
 
 export default function StartPage() {
   const [momName, setMomName] = useState("");
@@ -109,6 +110,15 @@ export default function StartPage() {
               </p>
               <span className="link-value">{`${origin}/r/${result.slug}/manage?token=${result.editToken}`}</span>
             </div>
+          )}
+
+          {result && (
+            <>
+              <p className="form-note" style={{ marginTop: 32, textAlign: "center" }}>
+                Want to spread the word? Share this on Instagram, Facebook, or by text:
+              </p>
+              <ShareCard momName={momName} registryUrl={`${origin}/r/${result.slug}`} />
+            </>
           )}
         </div>
       </main>
