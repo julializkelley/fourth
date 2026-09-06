@@ -82,6 +82,25 @@ nav.wrap {
 .nav-links a:hover {
   color: var(--parchment);
 }
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.menu-toggle span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--parchment);
+  border-radius: 2px;
+}
 
 /* ---------- hero ---------- */
 header.hero {
@@ -706,6 +725,33 @@ footer p {
 }
 
 @media (max-width: 780px) {
+  .menu-toggle {
+    display: flex;
+  }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    background: var(--ink-soft);
+    border-bottom: 1px solid var(--line);
+    padding: 16px 24px 24px;
+    z-index: 20;
+  }
+  .nav-links a {
+    width: 100%;
+    padding: 10px 0;
+  }
+  .nav-links-open {
+    display: flex;
+  }
+  nav.wrap {
+    position: relative;
+  }
   .quotes,
   .pillars {
     grid-template-columns: 1fr;
