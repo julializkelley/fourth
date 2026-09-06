@@ -61,6 +61,10 @@ export type Database = {
           claimed_by_contact: string | null;
           claimed_at: string | null;
           external_url: string | null;
+          scheduled_at: string | null;
+          scheduled_tz_offset_minutes: number | null;
+          reminder_day_before_sent_at: string | null;
+          reminder_hours_before_sent_at: string | null;
           sort_order: number;
           created_at: string;
         };
@@ -75,6 +79,10 @@ export type Database = {
           claimed_by_contact?: string | null;
           claimed_at?: string | null;
           external_url?: string | null;
+          scheduled_at?: string | null;
+          scheduled_tz_offset_minutes?: number | null;
+          reminder_day_before_sent_at?: string | null;
+          reminder_hours_before_sent_at?: string | null;
           sort_order?: number;
           created_at?: string;
         };

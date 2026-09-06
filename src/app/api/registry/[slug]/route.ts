@@ -20,7 +20,7 @@ export async function GET(
 
   const { data: slots, error: slotsError } = await db
     .from("registry_slots")
-    .select("id, category, day_label, description, status, claimed_by_name, external_url, sort_order")
+    .select("id, category, day_label, description, status, claimed_by_name, external_url, scheduled_at, sort_order")
     .eq("registry_id", registry.id)
     .order("sort_order", { ascending: true });
 

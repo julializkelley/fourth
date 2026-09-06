@@ -101,6 +101,9 @@ export function ManageBoard({ slug, token }: { slug: string; token: string }) {
   const [timeframe, setTimeframe] = useState("any");
   const [recurrence, setRecurrence] = useState("once");
   const [description, setDescription] = useState("");
+  const [externalUrl, setExternalUrl] = useState("");
+  const [scheduledDate, setScheduledDate] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("");
   const [adding, setAdding] = useState(false);
 
   const [allergies, setAllergies] = useState("");
@@ -151,8 +154,30 @@ export function ManageBoard({ slug, token }: { slug: string; token: string }) {
     if (!description.trim()) return;
     setAdding(true);
     const dayLabel = buildDayLabel(day, timeframe, recurrence);
-    await runAction({ action: "add", category, dayLabel, description });
+
+    let scheduledAt: string | undefined;
+    let scheduledTzOffsetMinutes: number | undefined;
+    if (scheduledDate && scheduledTime) {
+      const [y, m, d] = scheduledDate.split("-").map(Number);
+      const [hh, mm] = scheduledTime.split(":").map(Number);
+      const local = new Date(y, m - 1, d, hh, mm);
+      scheduledAt = local.toISOString();
+      scheduledTzOffsetMinutes = local.getTimezoneOffset();
+    }
+
+    await runAction({
+      action: "add",
+      category,
+      dayLabel,
+      description,
+      externalUrl,
+      scheduledAt,
+      scheduledTzOffsetMinutes,
+    });
     setDescription("");
+    setExternalUrl("");
+    setScheduledDate("");
+    setScheduledTime("");
     setAdding(false);
   }
 
@@ -273,7 +298,10 @@ export function ManageBoard({ slug, token }: { slug: string; token: string }) {
         <select
           id="category"
           value={category}
-          onChange={(e) => setCategory(e.target.value as "meal" | "item" | "care")}
+          onChange={(e) => {
+            setCategory(e.target.value as "meal" | "item" | "care");
+            setExternalUrl("");
+          }}
         >
           <option value="meal">Meal</option>
           <option value="item">Item</option>
@@ -315,6 +343,58 @@ export function ManageBoard({ slug, token }: { slug: string; token: string }) {
           placeholder="e.g. Bring a meal"
           required
         />
+
+        {category === "meal" && (
+          <>
+            <label htmlFor="externalUrl">
+              Link a restaurant, DoorDash, or Uber Eats order page (optional)
+            </label>
+            <input
+              id="externalUrl"
+              type="url"
+              value={externalUrl}
+              onChange={(e) => setExternalUrl(e.target.value)}
+              placeholder="https://www.doordash.com/store/..."
+            />
+            <p className="form-note" style={{ marginTop: -12 }}>
+              Prefer a gift card instead? Use the gift card section below rather than a specific
+              restaurant.
+            </p>
+          </>
+        )}
+
+        {category === "item" && (
+          <>
+            <label htmlFor="externalUrl">Link the exact item (Amazon, Target, etc.) — optional</label>
+            <input
+              id="externalUrl"
+              type="url"
+              value={externalUrl}
+              onChange={(e) => setExternalUrl(e.target.value)}
+              placeholder="https://www.amazon.com/..."
+            />
+          </>
+        )}
+
+        <label htmlFor="scheduledDate">Specific date & time (optional — enables email reminders)</label>
+        <div className="field-row">
+          <div>
+            <input
+              id="scheduledDate"
+              type="date"
+              value={scheduledDate}
+              onChange={(e) => setScheduledDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <input
+              id="scheduledTime"
+              type="time"
+              value={scheduledTime}
+              onChange={(e) => setScheduledTime(e.target.value)}
+            />
+          </div>
+        </div>
 
         <button type="submit" className="btn btn-primary form-submit" disabled={adding}>
           {adding ? "Adding…" : "Add to registry"}
@@ -419,12 +499,13 @@ export function ManageBoard({ slug, token }: { slug: string; token: string }) {
             />
           </div>
           <div>
-            <label htmlFor="contactInfo">Phone or email</label>
+            <label htmlFor="contactInfo">Email (optional)</label>
             <input
               id="contactInfo"
+              type="email"
               value={contactInfo}
               onChange={(e) => setContactInfo(e.target.value)}
-              placeholder="Optional"
+              placeholder="jane@email.com"
             />
           </div>
         </div>

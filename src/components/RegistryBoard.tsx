@@ -10,6 +10,7 @@ type Slot = {
   status: "open" | "pending" | "taken";
   claimed_by_name: string | null;
   external_url: string | null;
+  scheduled_at: string | null;
   sort_order: number;
 };
 
@@ -37,6 +38,12 @@ function matchesTab(slot: Slot, tab: TabKey) {
   if (tab === "all") return true;
   if (tab === "item") return slot.category === "item" || slot.category === "gift_card";
   return slot.category === tab;
+}
+
+function externalLinkLabel(category: Slot["category"]) {
+  if (category === "gift_card") return "Buy a gift card ↗";
+  if (category === "meal") return "Order here ↗";
+  return "View item ↗";
 }
 
 export function RegistryBoard({ slug }: { slug: string }) {
@@ -81,7 +88,8 @@ export function RegistryBoard({ slug }: { slug: string }) {
           : s
       )
     );
-    setActiveSlot(null);
+    // Don't close here -- the modal shows its own thank-you confirmation
+    // and closes itself when the visitor clicks "Done".
   }
 
   if (loading) {
@@ -166,7 +174,7 @@ export function RegistryBoard({ slug }: { slug: string }) {
                     ? "Pending approval"
                     : "Open — claim it"}
               </div>
-              {slot.category === "gift_card" && slot.external_url && slot.status === "open" && (
+              {slot.external_url && slot.status === "open" && (
                 <a
                   href={slot.external_url}
                   target="_blank"
@@ -174,7 +182,7 @@ export function RegistryBoard({ slug }: { slug: string }) {
                   className="slot-external-link"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  Buy a gift card ↗
+                  {externalLinkLabel(slot.category)}
                 </a>
               )}
             </button>
@@ -206,20 +214,21 @@ function ClaimModal({
   onClaimed: (slotId: string, name: string, pending: boolean) => void;
 }) {
   const [name, setName] = useState("");
-  const [contact, setContact] = useState("");
+  const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState<{ pending: boolean } | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !email.trim()) return;
     setSubmitting(true);
     setError(null);
     try {
       const res = await fetch(`/api/registry/${slug}/claim`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slotId: slot.id, name, contact }),
+        body: JSON.stringify({ slotId: slot.id, name, email }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -227,6 +236,7 @@ function ClaimModal({
         return;
       }
       onClaimed(slot.id, name.trim(), !!data.pending);
+      setDone({ pending: !!data.pending });
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -234,15 +244,35 @@ function ClaimModal({
     }
   }
 
+  if (done) {
+    return (
+      <div className="modal-backdrop" onClick={onClose}>
+        <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+          <h4>Thank you!</h4>
+          <p className="modal-sub" style={{ marginBottom: 16 }}>
+            {done.pending
+              ? `You're signed up for "${slot.description}", pending her approval. We've sent a confirmation to ${email}.`
+              : `You're confirmed for "${slot.description}". We've sent a confirmation to ${email}${slot.scheduled_at ? ", with reminders coming closer to the time." : "."}`}
+          </p>
+          <div className="modal-actions">
+            <button type="button" className="btn btn-primary" onClick={onClose} style={{ flex: 1 }}>
+              Done
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <h4>{slot.description}</h4>
         <p className="modal-sub">{slot.day_label}</p>
-        {slot.category === "gift_card" && slot.external_url && (
+        {slot.external_url && (
           <p className="modal-sub">
             <a href={slot.external_url} target="_blank" rel="noreferrer">
-              Buy the gift card here ↗
+              {externalLinkLabel(slot.category)}
             </a>
           </p>
         )}
@@ -255,11 +285,13 @@ function ClaimModal({
             required
             placeholder="Jane Doe"
           />
-          <label htmlFor="claim-contact">Phone or email (for a reminder, optional)</label>
+          <label htmlFor="claim-email">Email (for confirmation and reminders)</label>
           <input
-            id="claim-contact"
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
+            id="claim-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
             placeholder="jane@email.com"
           />
           {error && <div className="error-msg">{error}</div>}

@@ -1,0 +1,19 @@
+name: Registry reminder emails
+
+on:
+  schedule:
+    # Every 20 minutes -- fine-grained enough for a "4 hours before" email
+    # without needing a paid Vercel cron plan.
+    - cron: "*/20 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger reminder check
+        run: |
+          curl -sS -X POST "https://www.fourthapp.co/api/cron/send-reminders" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            -w "\nHTTP %{http_code}\n" \
+            --fail-with-body

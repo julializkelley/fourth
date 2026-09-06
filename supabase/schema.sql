@@ -191,3 +191,18 @@ create index if not exists registry_approved_contacts_registry_id_idx
   on registry_approved_contacts(registry_id);
 
 alter table registry_approved_contacts enable row level security;
+
+-- Registry v3: real scheduled times + email reminders.
+-- scheduled_at is an absolute UTC instant. scheduled_tz_offset_minutes
+-- captures JS's getTimezoneOffset() from whoever set the time, so reminder
+-- math ("9am the day before") can approximate their local day boundary
+-- without needing full IANA timezone tracking.
+
+alter table registry_slots add column if not exists scheduled_at timestamptz;
+alter table registry_slots add column if not exists scheduled_tz_offset_minutes int;
+alter table registry_slots add column if not exists reminder_day_before_sent_at timestamptz;
+alter table registry_slots add column if not exists reminder_hours_before_sent_at timestamptz;
+
+create index if not exists registry_slots_scheduled_at_idx
+  on registry_slots(scheduled_at)
+  where scheduled_at is not null and status = 'taken';

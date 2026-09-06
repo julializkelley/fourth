@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { sendEmail } from "@/lib/resend";
+import { claimConfirmationEmail } from "@/lib/registryEmails";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(
   req: Request,
@@ -12,11 +16,15 @@ export async function POST(
     return NextResponse.json({ error: "Your name is required to claim a slot." }, { status: 400 });
   }
 
+  if (typeof body.email !== "string" || !EMAIL_RE.test(body.email.trim())) {
+    return NextResponse.json({ error: "A valid email is required to claim a slot." }, { status: 400 });
+  }
+
   const db = supabaseAdmin();
 
   const { data: registry, error: registryError } = await db
     .from("registries")
-    .select("id")
+    .select("id, mom_name")
     .eq("slug", slug)
     .single();
 
@@ -25,7 +33,7 @@ export async function POST(
   }
 
   const claimedByName = body.name.trim();
-  const claimedByContact = typeof body.contact === "string" ? body.contact.trim() : null;
+  const claimedByEmail = body.email.trim();
 
   const { data: approvedMatches } = await db
     .from("registry_approved_contacts")
@@ -34,8 +42,7 @@ export async function POST(
 
   const isPreApproved = (approvedMatches ?? []).some((c) => {
     const nameMatch = c.name.trim().toLowerCase() === claimedByName.toLowerCase();
-    const contactMatch =
-      !!c.contact && !!claimedByContact && c.contact.trim().toLowerCase() === claimedByContact.toLowerCase();
+    const contactMatch = !!c.contact && c.contact.trim().toLowerCase() === claimedByEmail.toLowerCase();
     return nameMatch || contactMatch;
   });
 
@@ -46,7 +53,7 @@ export async function POST(
     .update({
       status: newStatus,
       claimed_by_name: claimedByName,
-      claimed_by_contact: claimedByContact,
+      claimed_by_contact: claimedByEmail,
       claimed_at: new Date().toISOString(),
     })
     .eq("id", body.slotId)
@@ -60,6 +67,19 @@ export async function POST(
       { error: "That slot was just claimed by someone else. Try another one." },
       { status: 409 }
     );
+  }
+
+  try {
+    const { subject, html } = claimConfirmationEmail(
+      registry.mom_name,
+      updated.description,
+      updated.day_label,
+      updated.scheduled_at
+    );
+    await sendEmail({ to: claimedByEmail, subject, html });
+  } catch {
+    // Don't fail the claim if the email couldn't be sent -- the signup
+    // itself already succeeded and is the important part.
   }
 
   return NextResponse.json({ ok: true, slot: updated, pending: newStatus === "pending" });

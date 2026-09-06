@@ -61,7 +61,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
   const action = body.action;
 
   if (action === "add") {
-    const { category, dayLabel, description, externalUrl } = body;
+    const { category, dayLabel, description, externalUrl, scheduledAt, scheduledTzOffsetMinutes } = body;
     if (!["meal", "item", "care", "gift_card"].includes(category) || !dayLabel || !description) {
       return NextResponse.json({ error: "Missing fields for new slot." }, { status: 400 });
     }
@@ -71,6 +71,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ slug: s
       day_label: String(dayLabel).trim(),
       description: String(description).trim(),
       external_url: typeof externalUrl === "string" && externalUrl.trim() ? externalUrl.trim() : null,
+      scheduled_at: typeof scheduledAt === "string" && scheduledAt ? scheduledAt : null,
+      scheduled_tz_offset_minutes:
+        typeof scheduledTzOffsetMinutes === "number" ? scheduledTzOffsetMinutes : null,
       sort_order: 99,
     });
     if (error) return NextResponse.json({ error: "Could not add slot." }, { status: 500 });
