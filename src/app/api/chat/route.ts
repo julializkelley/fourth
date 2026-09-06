@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
   try {
     const response = await anthropicClient().messages.create({
-      model: "claude-opus-5",
+      model: "claude-sonnet-5",
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
