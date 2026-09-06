@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function SiteFooter() {
   return (
     <footer className="wrap footer-stack">
@@ -5,7 +7,9 @@ export function SiteFooter() {
         <div className="logo">
           Fourth<span>.</span>
         </div>
-        <p>© 2026 Fourth. Built for the fourth trimester.</p>
+        <p>
+          © 2026 Fourth. Built for the fourth trimester. <Link href="/privacy">Privacy</Link>
+        </p>
       </div>
       <p className="footer-dedication">
         Built in a moment when the world is finally talking about maternal mental health — in
