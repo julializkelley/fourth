@@ -3,7 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { getSessionId, resetSessionId } from "@/lib/chatSession";
 
-type AiMessage = { role: "user" | "assistant"; content: string; flagged?: boolean };
+type Product = {
+  name: string;
+  description: string;
+  priceRange: string;
+  category: string;
+  searchUrl: string;
+};
+
+type AiMessage = {
+  role: "user" | "assistant";
+  content: string;
+  flagged?: boolean;
+  products?: Product[];
+};
 type PairMessage = {
   id: string;
   sender_session_id: string;
@@ -156,7 +169,12 @@ export function SupportChat() {
       const data = await res.json();
       setAiMessages((prev) => [
         ...prev,
-        { role: "assistant", content: data.reply ?? "Something went wrong. Please try again.", flagged: data.flagged },
+        {
+          role: "assistant",
+          content: data.reply ?? "Something went wrong. Please try again.",
+          flagged: data.flagged,
+          products: data.products,
+        },
       ]);
     } catch {
       setAiMessages((prev) => [
@@ -282,6 +300,24 @@ export function SupportChat() {
                 {m.flagged && (
                   <div className="chat-flag-banner" style={{ marginTop: 8 }}>
                     {CRISIS_LINE}
+                  </div>
+                )}
+                {m.products && m.products.length > 0 && (
+                  <div className="product-card-row">
+                    {m.products.map((p) => (
+                      <a
+                        key={p.name}
+                        href={p.searchUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="product-card"
+                      >
+                        <div className="product-card-category">{p.category}</div>
+                        <div className="product-card-name">{p.name}</div>
+                        <div className="product-card-desc">{p.description}</div>
+                        <div className="product-card-price">{p.priceRange} · View ↗</div>
+                      </a>
+                    ))}
                   </div>
                 )}
               </div>
