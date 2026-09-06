@@ -65,16 +65,11 @@ async function drawCard(canvas: HTMLCanvasElement, momName: string, registryUrl:
   ctx.fillStyle = CLAY_BRIGHT;
   ctx.fillText(".", PAD + wordmarkWidth, 140);
 
-  // Timestamp-style eyebrow
-  ctx.font = "500 26px 'IBM Plex Mono', monospace";
-  ctx.fillStyle = HIGHLIGHT;
-  ctx.fillText("SHE'S GOING THROUGH IT RIGHT NOW", PAD, 230);
-
   // Headline
   ctx.font = "italic 500 76px Fraunces, serif";
   ctx.fillStyle = PARCHMENT;
   const headlineLines = wrapText(ctx, `I'm helping ${momName} through her fourth trimester`, CONTENT_WIDTH);
-  let y = 340;
+  let y = 260;
   for (const line of headlineLines) {
     ctx.fillText(line, PAD, y);
     y += 88;

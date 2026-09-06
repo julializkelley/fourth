@@ -178,26 +178,42 @@ export const PRODUCT_CATALOG: Product[] = [
 ];
 
 export function searchProducts(query: string, limit = 4): Product[] {
-  const q = query.toLowerCase();
+  const q = query.toLowerCase().trim();
+
   const scored = PRODUCT_CATALOG.map((p) => {
     let score = 0;
-    if (p.name.toLowerCase().includes(q)) score += 3;
-    if (p.category.toLowerCase().includes(q)) score += 2;
+    const name = p.name.toLowerCase();
+    const category = p.category.toLowerCase();
+
+    // Specific, high-confidence signals: the query and a name/keyword are
+    // essentially the same thing. Deliberately no generic per-word overlap
+    // scoring here -- that let a single shared word like "nursing" pull in
+    // every "nursing ___" product regardless of what was actually asked for.
+    if (name === q) score += 10;
+    else if (name.includes(q) || q.includes(name)) score += 6;
+
     for (const kw of p.keywords) {
-      if (q.includes(kw) || kw.includes(q)) score += 2;
+      if (kw === q) score += 8;
+      else if (q.includes(kw)) score += 5;
     }
-    const queryWords = q.split(/\s+/).filter(Boolean);
-    for (const word of queryWords) {
-      if (word.length < 3) continue;
-      if (p.name.toLowerCase().includes(word)) score += 1;
-      if (p.keywords.some((kw) => kw.includes(word))) score += 1;
-    }
+
+    // Weak signal, kept low so it only decides things when nothing else
+    // matched (e.g. a broad "feeding" or "supplements" browse). Checked
+    // both directions since a natural-language query like "feeding
+    // supplies" contains the category word rather than the other way round.
+    if (category.includes(q) || q.includes(category)) score += 2;
+
     return { product: p, score };
   });
 
-  return scored
-    .filter((s) => s.score > 0)
-    .sort((a, b) => b.score - a.score)
+  const ranked = scored.filter((s) => s.score > 0).sort((a, b) => b.score - a.score);
+  if (ranked.length === 0) return [];
+
+  // Keep only results reasonably close to the best match, so one loosely
+  // related item doesn't ride along with the genuinely relevant ones.
+  const topScore = ranked[0].score;
+  return ranked
+    .filter((s) => s.score >= topScore * 0.6)
     .slice(0, limit)
     .map((s) => s.product);
 }
