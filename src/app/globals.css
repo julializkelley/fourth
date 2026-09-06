@@ -444,7 +444,8 @@ label:first-of-type {
   margin-top: 0;
 }
 input,
-select {
+select,
+textarea {
   width: 100%;
   background: var(--ink);
   border: 1px solid var(--line);
@@ -454,8 +455,13 @@ select {
   font-family: var(--body);
   font-size: 14.5px;
 }
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   outline: 2px solid var(--clay);
   outline-offset: 1px;
   border-color: transparent;

@@ -8,7 +8,8 @@ export function SiteFooter() {
           Fourth<span>.</span>
         </div>
         <p>
-          © 2026 Fourth. Built for the fourth trimester. <Link href="/privacy">Privacy</Link>
+          © 2026 Fourth. Built for the fourth trimester. <Link href="/privacy">Privacy</Link> ·{" "}
+          <Link href="/feedback">Feedback</Link>
         </p>
       </div>
       <p className="footer-dedication">
