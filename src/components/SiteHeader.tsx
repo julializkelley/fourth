@@ -12,6 +12,7 @@ export function SiteHeader() {
         <Link href="/#how">How it works</Link>
         <Link href="/#registry">The registry</Link>
         <Link href="/#join">Join</Link>
+        <Link href="/feedback">Feedback</Link>
       </div>
     </nav>
   );
